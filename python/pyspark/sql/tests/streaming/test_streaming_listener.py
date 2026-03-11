@@ -102,6 +102,7 @@ class StreamingListenerTestsMixin:
                     "latestOffset",
                     "addBatch",
                     "walCommit",
+                    "interbatch"
                 }
             )
         )
