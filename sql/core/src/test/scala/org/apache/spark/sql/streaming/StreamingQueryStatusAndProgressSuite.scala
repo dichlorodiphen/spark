@@ -679,7 +679,7 @@ class StreamingQueryStatusAndProgressSuite extends StreamTest with Eventually wi
       waitUntilBatchProcessed,
       AssertOnQuery { q =>
         assert(q.lastProgress.batchId == 1)
-        assert(q.lastProgress.durationMs.get("interbatch") >= triggerWait)
+        assert(q.lastProgress.durationMs.get("interbatch") == triggerWait)
         true
       },
       StopStream
