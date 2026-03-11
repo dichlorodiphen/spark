@@ -654,6 +654,38 @@ class StreamingQueryStatusAndProgressSuite extends StreamTest with Eventually wi
   """.stripMargin.trim
   }
 
+  test("SPARK-TODO: durationMs.interbatch should be calculated correctly") {
+    import testImplicits._
+
+    clock = new StreamManualClock
+    val inputData = MemoryStream[Int]
+    val query = inputData.toDS()
+    val triggerWait = 300
+
+    testStream(query)(
+      StartStream(Trigger.ProcessingTime(300), triggerClock = clock),
+      // Batch 0
+      AddData(inputData, 1, 2),
+      AdvanceManualClock(triggerWait),
+      waitUntilBatchProcessed,
+      AssertOnQuery { q =>
+        assert(q.lastProgress.batchId == 0)
+        assert(!q.lastProgress.durationMs.containsKey("interbatch"))
+        true
+      },
+      // Batch 1
+      AddData(inputData, 2, 3),
+      AdvanceManualClock(triggerWait),
+      waitUntilBatchProcessed,
+      AssertOnQuery { q =>
+        assert(q.lastProgress.batchId == 1)
+        assert(q.lastProgress.durationMs.get("interbatch") >= triggerWait)
+        true
+      },
+      StopStream
+    )
+  }
+
   def waitUntilBatchProcessed: AssertOnQuery = Execute { q =>
     eventually(Timeout(streamingTimeout)) {
       if (q.exception.isEmpty) {

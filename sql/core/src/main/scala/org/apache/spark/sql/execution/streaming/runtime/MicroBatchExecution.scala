@@ -1194,6 +1194,7 @@ class MicroBatchExecution(
         }
       }
     }
+    execCtx.currentAddBatchFinishTimestamp = triggerClock.getTimeMillis()
 
     withProgressLocked {
       execCtx.sinkCommitProgress = batchSinkProgress

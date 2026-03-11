@@ -172,6 +172,11 @@ abstract class ProgressContext(
   private var currentTriggerEndOffsets: Map[SparkDataStream, String] = _
   private var currentTriggerLatestOffsets: Map[SparkDataStream, String] = _
 
+  // We use the addBatch finish timestamp to calculated the interbatch latency: the time between
+  // batches.
+  var currentAddBatchFinishTimestamp = -1L
+  protected var lastAddBatchFinishTimestamp = -1L
+
   // TODO: Restore this from the checkpoint when possible.
   protected var lastTriggerStartTimestamp = -1L
 
@@ -306,6 +311,14 @@ abstract class ProgressContext(
     assert(lastExecution != null, "executed batch should provide the information for execution.")
     val execStats = extractExecutionStats(hasNewData, sourceToNumInputRowsMap, lastExecution)
     logDebug(s"Execution stats: $execStats")
+
+    if (lastAddBatchFinishTimestamp != -1) {
+      assert(currentDurationsMs.contains("addBatch"))
+      val addBatchDuration = currentDurationsMs("addBatch")
+      val interbatchLatency = currentAddBatchFinishTimestamp - lastAddBatchFinishTimestamp -
+        addBatchDuration
+      reportTimeTaken("interbatch", interbatchLatency)
+    }
 
     val observedMetrics = extractObservedMetrics(lastExecution)
     val newProgress = constructNewProgress(processingTimeMills, lastEpochId, Some(execStats),
