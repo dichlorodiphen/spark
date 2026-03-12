@@ -318,7 +318,7 @@ abstract class ProgressContext(
       val addBatchDuration = currentDurationsMs("addBatch")
       val interbatchLatency = currentAddBatchFinishTimestamp - lastAddBatchFinishTimestamp -
         addBatchDuration
-      reportTimeTaken("interbatch", math.max(interbatchLatency, 0)
+      reportTimeTaken("interbatch", math.max(interbatchLatency, 0))
     }
 
     val observedMetrics = extractObservedMetrics(lastExecution)
