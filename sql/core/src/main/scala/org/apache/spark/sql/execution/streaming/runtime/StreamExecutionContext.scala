@@ -165,6 +165,9 @@ class MicroBatchExecutionContext(
       // need to carry this over to track to know when the previous batch started
       currentTriggerStartTimestamp = ctx.currentTriggerStartTimestamp
 
+      // similarly, we need to carry this over to know when the previous batch finished addBatch
+      lastAddBatchFinishTimestamp = ctx.currentAddBatchFinishTimestamp
+
       // needed to carry over to new batch because api accessing this value does not expect
       // it to be null even if its the old plan. For constructing the progress on idle trigger
       // no longer relies on executionPlan - we use carryOverExecStatsOnLatestExecutedBatch().

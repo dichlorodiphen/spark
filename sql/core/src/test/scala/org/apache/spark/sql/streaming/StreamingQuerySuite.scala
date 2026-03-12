@@ -334,6 +334,7 @@ class StreamingQuerySuite extends StreamTest with BeforeAndAfter with Logging wi
         assert(progress.numInputRows === 2)
         assert(progress.processedRowsPerSecond === 4.0)
 
+        assert(!progress.durationMs.containsKey("interbatch"))
         assert(progress.durationMs.get("latestOffset") === 50)
         assert(progress.durationMs.get("queryPlanning") === 0)
         assert(progress.durationMs.get("walCommit") === 0)
@@ -372,6 +373,7 @@ class StreamingQuerySuite extends StreamTest with BeforeAndAfter with Logging wi
         assert(query.lastProgress.sources(0).inputRowsPerSecond === 2.0)
         assert(query.lastProgress.sources(0).startOffset === "0")
         assert(query.lastProgress.sources(0).endOffset === "1")
+        assert(query.lastProgress.durationMs.get("interbatch") == 500)
         true
       },
 
